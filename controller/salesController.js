@@ -4,20 +4,20 @@ const asyncHandler = require("express-async-handler");
 
 
 //Get all tts
-const getSales = async (req, res) => {
+const getSales = asyncHandler( async (req, res) => {
   const sales = await salesModel.find({});
   if (sales) {
     res.status(200).json(sales);
   }
-};
+});
 
 //creat a sales
 const createSales = asyncHandler(async (req, res) => {
     const productId = req.body.productId;
     const salesAmount = req.body.salesAmount;
-
     const productContaint = await producModel.findById({_id: productId});
-    validateProductCount(productContaint, salesAmount)
+    validateProductCount(productContaint, salesAmount,res)
+    console.log("skjkjsdk");
 
     
     const productDiscount = await producModel.findByIdAndUpdate({_id:productId}, {$inc:{"productCount":-salesAmount}});
@@ -30,7 +30,7 @@ const createSales = asyncHandler(async (req, res) => {
     }
 });
 
-const validateProductCount = (productContaint,salesAmount) => {
+const validateProductCount = (productContaint,salesAmount,res ) => {
     if (productContaint.productCount < salesAmount) {
         res.status(404)
         throw new Error("There is not enough Product in Grocery!");
@@ -40,12 +40,12 @@ const validateProductCount = (productContaint,salesAmount) => {
 //update a sales
 const updatesales = asyncHandler(async (req, res) => {
   const { params, body } = req;
-  const sales = await producModel.findOneAndUpdate(
+  const sales = await salesModel.findOneAndUpdate(
     { _id: params.id },
     {
       $set: {
         salesName: body.salesName,
-        salesCount: body.salesCount,
+        salesAmount: body.salesCount,
       },
     },
     { new: true }
@@ -61,9 +61,10 @@ const updatesales = asyncHandler(async (req, res) => {
 //delete sales
 const deletesales = asyncHandler(async (req,res) => {
     const {params} = req;
-    const sales = await producModel.findOneAndDelete(
+    const sales = await salesModel.findOneAndDelete(
         { _id: params.id }
       );
+      console.log(sales);
       if (!sales) {
         res.status(404);
         throw new Error("sales not found");
