@@ -5,7 +5,7 @@ const salesSchema =new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"products",
 },
-    salesCount:{
+    salesAmount:{
         type:Number,
         required:true
     }

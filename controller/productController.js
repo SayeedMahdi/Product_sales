@@ -1,10 +1,10 @@
-const producModel = require("../models/inventory");
+const productModel = require("../models/inventory");
 const asyncHandler = require("express-async-handler");
-const { json } = require("body-parser");
+
 
 //Get all products
 const getProduct = async (req, res) => {
-  const products = await producModel.find({});
+  const products = await productModel.find({});
   if (products) {
     res.status(200).json(products);
   }
@@ -12,7 +12,7 @@ const getProduct = async (req, res) => {
 
 //creat a product
 const createProduct = asyncHandler(async (req, res) => {
-  const product = await producModel.create(req.body);
+  const product = await productModel.create(req.body);
   if (product) {
     res.status(201).json(product);
   } else {
@@ -24,7 +24,7 @@ const createProduct = asyncHandler(async (req, res) => {
 //update a product
 const updateProduct = asyncHandler(async (req, res) => {
   const { params, body } = req;
-  const product = await producModel.findOneAndUpdate(
+  const product = await productModel.findOneAndUpdate(
     { _id: params.id },
     {
       $set: {
@@ -45,7 +45,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 //delete product
 const deleteProduct = asyncHandler(async (req,res) => {
     const {params} = req;
-    const product = await producModel.findOneAndDelete(
+    const product = await productModel.findOneAndDelete(
         { _id: params.id }
       );
       if (!product) {
