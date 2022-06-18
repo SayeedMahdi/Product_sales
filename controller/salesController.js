@@ -54,19 +54,24 @@ const updateSales = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("sales not found");
   }
-  console.log(sales);
+  console.log(body);
   //if some amount added or dicreased form sales it will be added to producsts
   const diffrentSalesAmount = sales.salesAmount - body.salesAmount;
-  console.log(diffrentSalesAmount);
-  await producModel.findByIdAndUpdate({_id:body.productId}, {$inc:{"productCount":diffrentSalesAmount}});
 
+  //cheak for new product if it changed 
+  if(sales.productId !== body.productId){
+    await producModel.findByIdAndUpdate({_id:sales.productId}, {$inc:{"productCount":sales.salesAmount}});
+    console.log("some thing here");
+    await producModel.findByIdAndUpdate({_id:body.productId}, {$inc:{"productCount":-body.salesAmount}});
+  }
+  await producModel.findByIdAndUpdate({_id:sales.productId}, {$inc:{"productCount":diffrentSalesAmount}});
   res.status(201).json(sales);
 });
 
 //delete sales
 const deleteSales = asyncHandler(async (req,res) => {
     const {params} = req;
-    const sales= await salesModel.findOne({ _id: params.id });
+    const sales= await salesModel.findOneAndDelete({ _id: params.id });
     
     
     if (!sales ) {
