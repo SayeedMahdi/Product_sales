@@ -42,21 +42,9 @@ const updateProduct = asyncHandler(async (req, res) => {
   res.status(201).json(product);
 });
 
-//delete product
-const deleteProduct = asyncHandler(async (req,res) => {
-    const {params} = req;
-    const product = await productModel.findOneAndDelete(
-        { _id: params.id }
-      );
-      if (!product) {
-        res.status(404);
-        throw new Error("product not found");
-      }
-      res.status(200).json(product)
-})
+
 module.exports = {
   getProduct,
   createProduct,
-  updateProduct,
-  deleteProduct
+  updateProduct
 };
