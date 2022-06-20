@@ -1,6 +1,5 @@
 const {checkSchema, validationResult} = require("express-validator");
- const productModel = require("../models/inventory");
-
+ 
 //error handler
 const errorHandler = (req, res, next) => {
     const validationError = validationResult(req);
@@ -10,7 +9,7 @@ const errorHandler = (req, res, next) => {
     next();
 };
 
-//this is the schema cheaker for create and update of a Products
+//this is the schema checker for create and update of a Products
 const createAndUpdateSchema = checkSchema({
     productId: {
         isEmpty: {
@@ -18,7 +17,7 @@ const createAndUpdateSchema = checkSchema({
             errorMessage:"Must have value"
         },   
     },
-    salesAmount: {
+    count: {
         isNumeric:{
             errorMessage:"must be a number"
         }

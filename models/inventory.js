@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 const salesSchema =new mongoose.Schema({
-    productName:{
+    name:{
         type:String,
         required:true,
-        unique:true
 },
-    productCount:{
+    count:{
         type:Number,
         required:true
     }

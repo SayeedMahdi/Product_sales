@@ -2,7 +2,7 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const { errorHandeler } = require("./middleware/errorHandler");
+const { errorHandler } = require("./middleware/errorHandler");
 const routes = require("./routes");
 //middle wares
 require("dotenv").config();
@@ -11,7 +11,7 @@ app.use(express.json());
 
 //make routes 
 app.use("/api/v1",routes)
-app.use(errorHandeler);
+app.use(errorHandler);
 
 
 

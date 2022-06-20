@@ -1,5 +1,5 @@
-const salesModel = require("../models/salles");
-const producModel = require("../models/inventory");
+const salesModel = require("../models/sales");
+const productModel = require("../models/inventory");
 const asyncHandler = require("express-async-handler");
 
 
@@ -11,62 +11,69 @@ const getSales = asyncHandler( async (req, res) => {
   }
 });
 
-//creat a sales
-const createSales = asyncHandler(async (req, res) => {
-    const productId = req.body.productId;
-    const salesAmount = req.body.salesAmount;
-    const productContaint = await producModel.findById({_id: productId});
-    validateProductCount(productContaint, salesAmount,res)
 
-     const productDiscount = await producModel.findByIdAndUpdate({_id:productId}, {$inc:{"productCount":-salesAmount}});
-  
-    const sales = await salesModel.create(req.body);
-    if (sales && productDiscount) {
-      res.status(201).json(sales);
-    } else {
-      res.status(404);
-      throw new Error("Duplicate value");
-    }
+const createSales = asyncHandler(async (req, res) => {
+  const productId = req.body.productId;
+  const salesCount = req.body.count;
+  const product = await productModel.findById({_id: productId});
+
+  if(!product){
+    res.status(404)
+    throw new Error(`No product fount with id ${productId}`);
+  }
+  validateProductCount(product, salesCount,res);
+
+  product.count   -= salesCount;
+  const saveProductChanges = await product.save();
+
+  const sales = await salesModel.create(req.body);
+  if (sales && saveProductChanges) {
+    res.status(201).json(sales);
+  } 
 });
 
-const validateProductCount = (productContaint,salesAmount,res ) => {
-    if (productContaint.productCount < salesAmount) {
+const validateProductCount = (productContent,salesAmount,res ) => {
+    if (productContent.productCount < salesAmount) {
         res.status(404)
         throw new Error("There is not enough Product in Grocery!");
     }
 }
 
-//update a sales
 const updateSales = asyncHandler(async (req, res) => {
-  const { params, body } = req;
-  const sales = await salesModel.findOneAndUpdate(
-    { _id: params.id },
+  const saleId = req.params.id;
+  const newProductId = req.body.productId;
+  const newCount = req.body.count;
+
+  const sale = await salesModel.findById(saleId);
+  const oldProduct = await productModel.findById(sale.productId);
+  const newProduct = await productModel.findById(newProductId);
+
+ 
+  
+  if (oldProduct._id === newProduct._id) {
+    validateProductCount(oldProduct, (newCount - sale.count), res);
+    saveSale(sale, oldProduct, (newCount - sale.count));
+
+  } else {
+    validateProductCount(newProduct, newCount, res);
+    newProduct.count +=sale.count;
+    await newProduct.save();
     
-      {
-        $set: {
-          productId: body.productId,
-          salesAmount: body.salesAmount,
-        }
-      }
-  );
-
-  if (!sales) {
-    res.status(404);
-    throw new Error("sales not found");
+    saveSale(sale, newProduct, newCount);
   }
-  console.log(body);
-  //if some amount added or dicreased form sales it will be added to producsts
-  const diffrentSalesAmount = sales.salesAmount - body.salesAmount;
 
-  //cheak for new product if it changed 
-  if(sales.productId !== body.productId){
-    await producModel.findByIdAndUpdate({_id:sales.productId}, {$inc:{"productCount":sales.salesAmount}});
-    console.log("some thing here");
-    await producModel.findByIdAndUpdate({_id:body.productId}, {$inc:{"productCount":-body.salesAmount}});
-  }
-  await producModel.findByIdAndUpdate({_id:sales.productId}, {$inc:{"productCount":diffrentSalesAmount}});
-  res.status(201).json(sales);
+  res.json(sale);
 });
+
+const saveSale = asyncHandler(async (sale, product, count) => {
+  product.count -=  count;
+   await product.save();
+
+  sale.count = count;
+   await sale.save();
+});
+
+
 
 //delete sales
 const deleteSales = asyncHandler(async (req,res) => {
@@ -87,3 +94,6 @@ module.exports = {
   updateSales,
   deleteSales
 };
+
+
+

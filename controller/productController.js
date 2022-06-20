@@ -10,7 +10,7 @@ const getProduct = async (req, res) => {
   }
 };
 
-//creat a product
+//create a product
 const createProduct = asyncHandler(async (req, res) => {
   const product = await productModel.create(req.body);
   if (product) {
@@ -28,8 +28,8 @@ const updateProduct = asyncHandler(async (req, res) => {
     { _id: params.id },
     {
       $set: {
-        productName: body.productName,
-        productCount: body.productCount,
+        name: body.name,
+        count: body.count,
       },
     },
     { new: true }
@@ -39,7 +39,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     throw new Error("product not found");
   }
 
-  res.status(201).json(product);
+  res.status(200).json(product);
 });
 
 

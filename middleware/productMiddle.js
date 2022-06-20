@@ -11,14 +11,14 @@ const errorHandler = (req, res, next) => {
 
 //this is the schema cheaker for create and update of a Products
 const createAndUpdateSchema = checkSchema({
-    productName: {
+    name: {
         isEmpty: {
             negated: true,
             errorMessage:"Must have value"
         },
         
     },
-    productCount: {
+    count: {
         isNumeric:{
             errorMessage:"must be a number"
         }
